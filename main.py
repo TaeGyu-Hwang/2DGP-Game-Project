@@ -9,7 +9,7 @@ font = pygame.font.Font('assets/fonts/font.ttf', 64)
 
 hit_sfx = mixer.Sound('assets/sfx/hit.mp3')
 goal_sfx = mixer.Sound('assets/sfx/hole.mp3')
-power_sfx = mixer.Sound('assets/sfx/golfhit.mp3')
+power_sfx = mixer.Sound('assets/sfx/power.mp3')
 
 ball_img = pygame.image.load("assets/images/ball.png")
 ball_img = pygame.transform.scale(ball_img, (42, 42))
