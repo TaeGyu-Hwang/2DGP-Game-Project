@@ -9,14 +9,19 @@ pygame.init()
 screen = pygame.display.set_mode((960, 960))
 clock = pygame.time.Clock()
 
+# 사용자가 구매한 골프공 목록과 현재 장착된 골프공
+gold = 1000  # 초기 골드
+purchased_balls = ["ball.png"]  # 기본으로 구매된 골프공
+equipped_ball = "ball.png"  # 현재 장착된 골프공
+
+# 게임 상태
+game_state = "title"
+
 font = pygame.font.Font('assets/fonts/font.ttf', 64)
 
 hit_sfx = mixer.Sound('assets/sfx/hit.mp3')
 goal_sfx = mixer.Sound('assets/sfx/hole.mp3')
 power_sfx = mixer.Sound('assets/sfx/power.mp3')
-
-ball_img = pygame.image.load("assets/images/ball.png")
-ball_img = pygame.transform.scale(ball_img, (42, 42))
 
 hole_img = pygame.image.load("assets/images/hole.png")
 hole_img = pygame.transform.scale(hole_img, (42, 42))
@@ -94,7 +99,9 @@ def create_hole(space, pos):
     return shape
 
 # 플레이어(공) 그리기 함수
-def draw_player(shape):
+def draw_player(shape, equipped_ball):
+    ball_img = pygame.image.load(f"assets/images/{equipped_ball}")
+    ball_img = pygame.transform.scale(ball_img, (42, 42))
     for ball in shape:
         ball_rect = ball_img.get_rect(center = (int(ball.body.position[0]), int(ball.body.position[1])))
         screen.blit(pygame.transform.scale(ball_img, (round(42 * (100 - size) / 100), round(42 * (100 - size) / 100))), ball_rect)
@@ -125,16 +132,8 @@ def text_print(font_render, text):
     screen.blit(text_shadow_render, text_shadow_rect)
     screen.blit(text_render, text_rect)
 
-# 사용자가 구매한 골프공 목록과 현재 장착된 골프공
-gold = 1000  # 초기 골드
-purchased_balls = ["ball.png"]  # 기본으로 구매된 골프공
-equipped_ball = "ball.png"  # 현재 장착된 골프공
-
-# 게임 상태
-game_state = "title"
-
 # 메인 게임 루프 함수
-def main_game_loop(screen, font):
+def main_game_loop(screen, font, equipped_ball):
     global space, size, vel_x, vel_y, shapes, balls, goals, hold, stroke, power, new_level, level, hole_max_timer, hole_timer
 
     # 게임에 필요한 초기 설정
@@ -185,15 +184,14 @@ def main_game_loop(screen, font):
                 if event.key == pygame.K_ESCAPE:
                     running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_position = pygame.mouse.get_pos()
                 if (-0.00001 < vel_x < 0.12225 and -0.00001 < vel_y < 0.12225) or (
                         0.00001 > vel_x > -0.12225 and 0.00001 > vel_y > -0.12225):
                     hold = True
-                    power = 1
             if event.type == pygame.MOUSEBUTTONUP:
-                if hold == True:
-                    power = 0
-                    stroke += 1
+                if hold:
                     hold = False
+                    stroke += 1
                     vel_x = (mouse_position[0] - ball_position[0]) * 1.675773 / 100
                     vel_y = (mouse_position[1] - ball_position[1]) * 1.675773 / 100
                     power_sfx_play()
@@ -294,7 +292,7 @@ def main_game_loop(screen, font):
             arrow_rect = rotate_image.get_rect(center=ball_position)
             screen.blit(rotate_image, arrow_rect)
 
-        draw_player(shapes)
+        draw_player(shapes, equipped_ball)
         ui_rect = stroke_ui_img.get_rect(center=(480, 40))
         screen.blit(stroke_ui_img, ui_rect)
         text_print(font, f"Strokes: {str(stroke)}")
@@ -334,7 +332,7 @@ while True:
         elif shop_state == "exit":
             game_state = "title"
     elif game_state == "start_game":
-        game_state = main_game_loop(screen, font)
+        game_state = main_game_loop(screen, font, equipped_ball)
 
 
 # 게임 종료 시 음악 정지
