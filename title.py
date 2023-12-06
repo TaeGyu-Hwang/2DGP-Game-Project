@@ -18,7 +18,7 @@ def show_title_screen(screen):
     start_button_rect = start_button_img.get_rect(center=(480, 500))
     club_button_rect = club_button_img.get_rect(center=(480, 650))
 
-    
+    # 상점 화면을 표시하는 함수
 
     running = True
     while running:

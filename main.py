@@ -2,6 +2,7 @@ import pygame, sys, math, random
 import pymunk
 from pygame import mixer
 import title
+import shop
 
 pygame.init()
 
@@ -125,8 +126,19 @@ def text_print(font_render, text):
 screen = pygame.display.set_mode((960, 960))
 clock = pygame.time.Clock()
 
+# 사용자가 구매한 골프공 목록과 현재 장착된 골프공
+purchased_balls = ["ball.png"]  # 기본으로 구매된 골프공
+equipped_ball = "ball.png"  # 현재 장착된 골프공
+
 # 타이틀 화면 표시
 game_state = title.show_title_screen(screen)  # title.py의 함수 호출
+
+if game_state == "open_shop":
+    # 상점 화면 표시
+    equipped_ball = shop.show_shop_screen(screen, purchased_balls, equipped_ball)
+elif game_state == "quit":
+    pygame.quit()
+    sys.exit()
 
 space = pymunk.Space()
 space.gravity = (0, 0)
