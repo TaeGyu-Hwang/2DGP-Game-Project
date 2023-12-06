@@ -183,12 +183,15 @@ hole_timer = 240
 size = 0
 
 # 여기부터 게임 루프가 시작
-while True:
+running = True
+while running:
     screen.blit(background, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             if (-0.00001 < vel_x < 0.12225 and -0.00001 < vel_y < 0.12225) or (0.00001 > vel_x > -0.12225 and 0.00001 > vel_y > -0.12225):
                 hold = True
@@ -323,4 +326,8 @@ while True:
     clock.tick(fps)
 
 # 게임 종료 시 음악 정지
-# pygame.mixer.music.stop()
+pygame.mixer.music.stop()
+
+# 게임 종료 시 처리
+pygame.quit()
+sys.exit()
