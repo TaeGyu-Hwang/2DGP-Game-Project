@@ -178,12 +178,32 @@ def main_game_loop(screen, font, equipped_ball):
     exit_text = exit_font.render("EXIT", True, (255, 255, 255))
     exit_rect = exit_text.get_rect(topleft=(20, 20))
 
-    
+    # go.png 이미지 로드 및 초기 설정
+    go_img = pygame.image.load("assets/images/go.png")
+    go_img_rect = go_img.get_rect(center=(480, 480))
+    go_scale = 1.0  # 초기 스케일
+    go_max_scale = 3.0  # 최대 스케일
+    go_scale_speed = 0.07  # 스케일 변화 속도
+    showing_go = True  # go 이미지 표시 여부
 
     # 게임 루프
     running = True
     while running:
         screen.blit(background, (0, 0))
+
+        draw_tile_large(balls)
+        draw_hole(goals)
+
+        # go 이미지 표시
+        if showing_go:
+            if go_scale < go_max_scale:
+                go_scale += go_scale_speed
+                scaled_go_img = pygame.transform.scale(go_img, (
+                int(go_img_rect.width * go_scale), int(go_img_rect.height * go_scale)))
+                scaled_go_rect = scaled_go_img.get_rect(center=(480, 480))
+                screen.blit(scaled_go_img, scaled_go_rect)
+            else:
+                showing_go = False  # go 이미지 표시 종료
 
         # EXIT 버튼 마우스 오버 효과
         if exit_rect.collidepoint(pygame.mouse.get_pos()):
@@ -226,8 +246,8 @@ def main_game_loop(screen, font, equipped_ball):
         fps = 2400
         space.step(1 / 2400)
 
-        draw_tile_large(balls)
-        draw_hole(goals)
+        # draw_tile_large(balls)
+        # draw_hole(goals)
 
         if new_level == False:
             pass
@@ -298,8 +318,8 @@ def main_game_loop(screen, font, equipped_ball):
                             size = 0
                 hole_timer += 1
 
-        draw_tile_large(balls)
-        draw_hole(goals)
+        # draw_tile_large(balls)
+        # draw_hole(goals)
 
         if hold == True:
             ball_position = body.position
