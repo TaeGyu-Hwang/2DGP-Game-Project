@@ -19,7 +19,10 @@ def show_title_screen(screen):
     start_button_rect = start_button_img.get_rect(center=(480, 500))
     club_button_rect = club_button_img.get_rect(center=(480, 650))
 
-    # 상점 화면을 표시하는 함수
+    # EXIT 버튼 설정
+    exit_font = pygame.font.Font('assets/fonts/font.ttf', 50)
+    exit_text = exit_font.render("EXIT", True, (255, 255, 255))
+    exit_rect = exit_text.get_rect(center=(480, 800))
 
     running = True
     while running:
@@ -46,6 +49,12 @@ def show_title_screen(screen):
         start_button_scaled_rect = start_button_scaled.get_rect(center=start_button_rect.center)
         club_button_scaled_rect = club_button_scaled.get_rect(center=club_button_rect.center)
 
+        # EXIT 버튼 마우스 오버 효과
+        if exit_rect.collidepoint(pygame.mouse.get_pos()):
+            exit_text = exit_font.render("EXIT", True, (255, 255, 0))  # 색상 변경 또는 크기 변경
+        else:
+            exit_text = exit_font.render("EXIT", True, (255, 255, 255))
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
@@ -54,10 +63,14 @@ def show_title_screen(screen):
                     return "start_game"  # 게임 시작
                 elif club_button_rect.collidepoint(event.pos):
                     return "open_shop"  # 상점 열기
+                elif exit_rect.collidepoint(event.pos):
+                    return "quit"  # 게임 종료
 
         screen.blit(background, (0, 0))
         screen.blit(title_text, (screen.get_width() / 2 - title_text.get_width() / 2, 100))
         screen.blit(start_button_scaled, start_button_scaled_rect)
         screen.blit(club_button_scaled, club_button_scaled_rect)
+        screen.blit(exit_text, exit_rect)
 
         pygame.display.update()
+

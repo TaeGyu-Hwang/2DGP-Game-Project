@@ -55,29 +55,44 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
         else:
             screen.blit(exit_button_img, exit_button_rect)
 
-        # 현재 장착 중인 골프공 그리기 (마우스 오버 효과 포함)
-        if ball_rects[0].collidepoint(mouse_pos):
-            scaled_current_ball = pygame.transform.scale(current_ball_img, (120, 120))
-            scaled_current_ball_rect = scaled_current_ball.get_rect(center=ball_rects[0].center)
-            screen.blit(scaled_current_ball, scaled_current_ball_rect)
-        else:
-            screen.blit(current_ball_scaled, ball_rects[0])
-
-        status_render = font.render("Equipped", True, (255, 255, 255))
-        screen.blit(status_render, (ball_rects[0].x, ball_rects[0].y + 110))
-
         # 골프공 그리기 및 마우스 오버 효과
         for i, ball_img in enumerate(ball_images_scaled):
-            screen.blit(ball_img, ball_rects[i + 1])
+            ball_rect = ball_rects[i + 1]  # 첫 번째 골프공은 기본 골프공이므로 인덱스를 1부터 시작
             ball_name = f"ball{i + 1}.png"
+
+            # 마우스 오버 효과 적용
+            if ball_rect.collidepoint(mouse_pos):
+                scaled_ball_img = pygame.transform.scale(ball_img, (120, 120))
+                scaled_ball_rect = scaled_ball_img.get_rect(center=ball_rect.center)
+                screen.blit(scaled_ball_img, scaled_ball_rect)
+            else:
+                screen.blit(ball_img, ball_rect)
+
+            # 상태 텍스트 설정
             if ball_name == equipped_ball:
                 status_text = "Equipped"
             elif ball_name in purchased_balls:
                 status_text = "Available"
             else:
                 status_text = f"{ball_prices[ball_name]} Gold"
+
+            # 상태 텍스트 그리기
             status_render = font.render(status_text, True, (255, 255, 255))
-            screen.blit(status_render, (ball_rects[i+1].x, ball_rects[i+1].y + 110))
+            screen.blit(status_render, (ball_rect.x, ball_rect.y + 110))
+
+        # 기본 골프공 그리기 및 마우스 오버 효과
+        current_ball_rect = ball_rects[0]
+        if current_ball_rect.collidepoint(mouse_pos):
+            scaled_current_ball = pygame.transform.scale(current_ball_img, (120, 120))
+            scaled_current_ball_rect = scaled_current_ball.get_rect(center=current_ball_rect.center)
+            screen.blit(scaled_current_ball, scaled_current_ball_rect)
+        else:
+            screen.blit(current_ball_scaled, current_ball_rect)
+
+        # 기본 골프공 상태 텍스트 설정 및 그리기
+        current_ball_status_text = "Equipped" if "ball.png" == equipped_ball else "Available"
+        current_ball_status_render = font.render(current_ball_status_text, True, (255, 255, 255))
+        screen.blit(current_ball_status_render, (current_ball_rect.x, current_ball_rect.y + 110))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -85,9 +100,9 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if exit_button_rect.collidepoint(event.pos):
                     return equipped_ball, gold, "exit"
-                for i, rect in enumerate(ball_rects[1:]):  # 첫 번째 골프공은 제외
+                for i, rect in enumerate(ball_rects):
                     if rect.collidepoint(event.pos):
-                        ball_name = f"ball{i + 1}.png"
+                        ball_name = f"ball{i}.png" if i > 0 else "ball.png"
                         if ball_name in purchased_balls:
                             equipped_ball = ball_name  # 골프공 장착
                         elif gold >= ball_prices[ball_name]:

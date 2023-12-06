@@ -173,16 +173,33 @@ def main_game_loop(screen, font, equipped_ball):
     hole_timer = 240
     size = 0
 
+    # EXIT 버튼 설정
+    exit_font = pygame.font.Font('assets/fonts/font.ttf', 50)
+    exit_text = exit_font.render("EXIT", True, (255, 255, 255))
+    exit_rect = exit_text.get_rect(topleft=(20, 20))
+
+    
+
     # 게임 루프
     running = True
     while running:
         screen.blit(background, (0, 0))
+
+        # EXIT 버튼 마우스 오버 효과
+        if exit_rect.collidepoint(pygame.mouse.get_pos()):
+            exit_text = exit_font.render("EXIT", True, (255, 255, 0))  # 색상 변경 또는 크기 변경
+        else:
+            exit_text = exit_font.render("EXIT", True, (255, 255, 255))
+
+        # EXIT 버튼 그리기
+        screen.blit(exit_text, exit_rect)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if exit_rect.collidepoint(event.pos):
+                    return "title"
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_position = pygame.mouse.get_pos()
                 if (-0.00001 < vel_x < 0.12225 and -0.00001 < vel_y < 0.12225) or (
@@ -330,6 +347,8 @@ def main_game_loop(screen, font, equipped_ball):
 while True:
     if game_state == "title":
         game_state = title.show_title_screen(screen)
+        if game_state == "quit":
+            break
     elif game_state == "open_shop":
         equipped_ball, gold, shop_state = shop.show_shop_screen(screen, purchased_balls, equipped_ball, gold)
         if shop_state == "quit":
@@ -340,9 +359,9 @@ while True:
         game_state = main_game_loop(screen, font, equipped_ball)
 
 
-# 게임 종료 시 음악 정지
-pygame.mixer.music.stop()
-
 # 게임 종료 시 처리
 pygame.quit()
 sys.exit()
+
+# 게임 종료 시 음악 정지
+pygame.mixer.music.stop()
