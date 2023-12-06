@@ -1,5 +1,6 @@
 import pygame
 
+
 def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
     font = pygame.font.Font('assets/fonts/font.ttf', 30)
 

@@ -51,18 +51,21 @@ birdie_img = pygame.image.load("assets/images/birdie.png")
 eagle_img = pygame.image.load("assets/images/eagle.png")
 par_img = pygame.image.load("assets/images/par.png")
 
+
 # 텍스트 출력 함수
 def text_print(font_render, text):
     text_render = font_render.render(text, True, (255, 255, 255))
-    text_rect = text_render.get_rect(center = (960 / 2, 40))
+    text_rect = text_render.get_rect(center=(960 / 2, 40))
     text_shadow_render = font_render.render(text, True, (0, 0, 0))
-    text_shadow_rect = text_render.get_rect(center = (960 / 2, 44))
+    text_shadow_rect = text_render.get_rect(center=(960 / 2, 44))
     screen.blit(text_shadow_render, text_shadow_rect)
     screen.blit(text_render, text_rect)
+
 
 # 충돌 발생 시 효과음 재생 함수
 def hit():
     hit_sfx.play()
+
 
 # 충돌 시 동작 정의 함수
 def hit_object(arbiter, space, _):
@@ -86,22 +89,26 @@ def hit_object(arbiter, space, _):
             hit()
     return True
 
+
 # 파워 효과음 재생 함수
 def power_sfx_play():
     power_sfx.play()
 
+
 # 대형 타일 생성 함수
 def create_tile_large(space, pos):
-    body = pymunk.Body(body_type = pymunk.Body.STATIC)
+    body = pymunk.Body(body_type=pymunk.Body.STATIC)
     body.position = (pos[0] * 64, pos[1] * 64)
     shape = pymunk.Poly.create_box(body, (120, 120))
     shape.collision_type = 1
     shape.elasticity = 1.1
-    space.add(body,shape)
+    space.add(body, shape)
     return shape
+
+
 # 홀 생성 함수
 def create_hole(space, pos):
-    body = pymunk.Body(1, 100, body_type = pymunk.Body.KINEMATIC)
+    body = pymunk.Body(1, 100, body_type=pymunk.Body.KINEMATIC)
     body.position = pos
     shape = pymunk.Circle(body, 16)
     shape.collision_type = 1
@@ -109,39 +116,46 @@ def create_hole(space, pos):
     space.add(body, shape)
     return shape
 
+
 # 플레이어(공) 그리기 함수
 def draw_player(shape, equipped_ball):
     ball_img = pygame.image.load(f"assets/images/{equipped_ball}")
     ball_img = pygame.transform.scale(ball_img, (42, 42))
     for ball in shape:
-        ball_rect = ball_img.get_rect(center = (int(ball.body.position[0]), int(ball.body.position[1])))
-        screen.blit(pygame.transform.scale(ball_img, (round(42 * (100 - size) / 100), round(42 * (100 - size) / 100))), ball_rect)
+        ball_rect = ball_img.get_rect(center=(int(ball.body.position[0]), int(ball.body.position[1])))
+        screen.blit(pygame.transform.scale(ball_img, (round(42 * (100 - size) / 100), round(42 * (100 - size) / 100))),
+                    ball_rect)
+
 
 # 홀 그리기 함수
 def draw_hole(shape):
     for ball in shape:
-        ball_rect = hole_img.get_rect(center = (int(ball.body.position[0]), int(ball.body.position[1])))
+        ball_rect = hole_img.get_rect(center=(int(ball.body.position[0]), int(ball.body.position[1])))
         screen.blit(hole_img, ball_rect)
+
 
 # 대형 타일 그리기 함수
 def draw_tile_large(shape):
     for square in shape:
-        ball_rect = tile_img.get_rect(center = (int(square.body.position[0]), int(square.body.position[1])))
+        ball_rect = tile_img.get_rect(center=(int(square.body.position[0]), int(square.body.position[1])))
         screen.blit(tile_img, ball_rect)
+
 
 # 정적 객체 삭제 함수
 def delete_static(shape):
     for square in shape:
         space.remove(square, square.body)
 
+
 # 텍스트 출력 함수
 def text_print(font_render, text):
     text_render = font_render.render(text, True, (255, 255, 255))
-    text_rect = text_render.get_rect(center = (960 / 2, 40))
+    text_rect = text_render.get_rect(center=(960 / 2, 40))
     text_shadow_render = font_render.render(text, True, (0, 0, 0))
-    text_shadow_rect = text_render.get_rect(center = (960 / 2, 44))
+    text_shadow_rect = text_render.get_rect(center=(960 / 2, 44))
     screen.blit(text_shadow_render, text_shadow_rect)
     screen.blit(text_render, text_rect)
+
 
 # 메인 게임 루프 함수
 def main_game_loop(screen, font, equipped_ball):
@@ -209,7 +223,7 @@ def main_game_loop(screen, font, equipped_ball):
                 go_scale += go_scale_speed
                 go_img_rect = go_img.get_rect(center=(480, 480))
                 scaled_go_img = pygame.transform.scale(go_img, (
-                int(go_img_rect.width * go_scale), int(go_img_rect.height * go_scale)))
+                    int(go_img_rect.width * go_scale), int(go_img_rect.height * go_scale)))
                 scaled_go_rect = scaled_go_img.get_rect(center=(480, 480))
                 screen.blit(scaled_go_img, scaled_go_rect)
             else:
@@ -296,13 +310,15 @@ def main_game_loop(screen, font, equipped_ball):
             else:
                 if hole_max_timer / hole_timer >= 3:
                     body.position = (
-                    480 + (hole_timer / 9) + random.randint(-3, 3), 480 + (hole_timer / 9) + random.randint(-3, 3))
+                        480 + (hole_timer / 9) + random.randint(-3, 3), 480 + (hole_timer / 9) + random.randint(-3, 3))
                 elif 3 > hole_max_timer / hole_timer >= 2:
                     body.position = (
-                    480 + (hole_timer / 10) + random.randint(-2, 2), 480 + (hole_timer / 10) + random.randint(-2, 2))
+                        480 + (hole_timer / 10) + random.randint(-2, 2),
+                        480 + (hole_timer / 10) + random.randint(-2, 2))
                 elif 2 > hole_max_timer / hole_timer >= 1:
                     body.position = (
-                    480 + (hole_timer / 11) + random.randint(-1, 1), 480 + (hole_timer / 11) + random.randint(-1, 1))
+                        480 + (hole_timer / 11) + random.randint(-1, 1),
+                        480 + (hole_timer / 11) + random.randint(-1, 1))
                 if size <= 86:
                     size = hole_timer / hole_max_timer * 100
                 else:
@@ -381,6 +397,7 @@ def main_game_loop(screen, font, equipped_ball):
 
     return "title"
 
+
 # 메인 루프
 while True:
     if game_state == "title":
@@ -395,7 +412,6 @@ while True:
             game_state = "title"
     elif game_state == "start_game":
         game_state = main_game_loop(screen, font, equipped_ball)
-
 
 # 게임 종료 시 처리
 pygame.quit()

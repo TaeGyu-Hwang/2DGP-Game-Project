@@ -1,6 +1,7 @@
 import pygame
 from pygame import mixer
 
+
 def show_title_screen(screen):
     font = pygame.font.Font('assets/fonts/font.ttf', 120)
     title_text = font.render("Go On Lucky Fairway", True, (255, 255, 255))
@@ -31,7 +32,7 @@ def show_title_screen(screen):
         # 마우스가 버튼 위에 있을 때 크기 변경
         if start_button_rect.collidepoint(mouse_pos):
             start_button_scaled = pygame.transform.scale(start_button_img, (
-            int(start_button_rect.width * 1.2), int(start_button_rect.height * 1.2)))
+                int(start_button_rect.width * 1.2), int(start_button_rect.height * 1.2)))
             start_button_scaled_rect = start_button_scaled.get_rect(center=start_button_rect.center)
         else:
             start_button_scaled = start_button_img
@@ -39,7 +40,7 @@ def show_title_screen(screen):
 
         if club_button_rect.collidepoint(mouse_pos):
             club_button_scaled = pygame.transform.scale(club_button_img, (
-            int(club_button_rect.width * 1.5), int(club_button_rect.height * 1.5)))
+                int(club_button_rect.width * 1.5), int(club_button_rect.height * 1.5)))
             club_button_scaled_rect = club_button_scaled.get_rect(center=club_button_rect.center)
         else:
             club_button_scaled = club_button_img
@@ -73,4 +74,3 @@ def show_title_screen(screen):
         screen.blit(exit_text, exit_rect)
 
         pygame.display.update()
-
