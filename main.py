@@ -186,11 +186,18 @@ def main_game_loop(screen, font, equipped_ball):
     go_scale_speed = 0.07  # 스케일 변화 속도
     showing_go = True  # go 이미지 표시 여부
 
+    # 결과 이미지 로드
+    yeah_img = pygame.image.load("assets/images/yeah.png")
+    birdie_img = pygame.image.load("assets/images/birdie.png")
+    eagle_img = pygame.image.load("assets/images/eagle.png")
+    par_img = pygame.image.load("assets/images/par.png")
+
     # 게임 루프
     running = True
     while running:
         screen.blit(background, (0, 0))
 
+        # 타일과 홀 그리기
         draw_tile_large(balls)
         draw_hole(goals)
 
@@ -204,6 +211,25 @@ def main_game_loop(screen, font, equipped_ball):
                 screen.blit(scaled_go_img, scaled_go_rect)
             else:
                 showing_go = False  # go 이미지 표시 종료
+
+        # 골프공이 홀에 들어갔을 때
+        if new_level:
+            if stroke <= 3:
+                result_img = yeah_img
+            elif 4 <= stroke <= 6:
+                result_img = eagle_img
+            elif 5 <= stroke <= 7:
+                result_img = birdie_img
+            else:
+                result_img = par_img
+
+            result_img_rect = result_img.get_rect(center=(480, 280))
+            screen.blit(result_img, result_img_rect)
+
+            # 마우스 클릭으로 이미지 제거
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    new_level = False
 
         # EXIT 버튼 마우스 오버 효과
         if exit_rect.collidepoint(pygame.mouse.get_pos()):
