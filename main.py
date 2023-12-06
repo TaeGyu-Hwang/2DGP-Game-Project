@@ -11,7 +11,7 @@ clock = pygame.time.Clock()
 
 # 사용자가 구매한 골프공 목록과 현재 장착된 골프공
 gold = 1000  # 초기 골드
-purchased_balls = ["ball.png"]  # 기본으로 구매된 골프공
+purchased_tiles = ["ball.png"]  # 기본으로 구매된 골프공
 equipped_ball = "ball.png"  # 현재 장착된 골프공
 
 # 게임 상태
@@ -38,6 +38,18 @@ tile_img = pygame.transform.scale(tile_img, (128, 128))
 
 arrow_img = pygame.image.load("assets/images/arrow.png")
 arrow_img = pygame.transform.scale(arrow_img, (42, 168))
+
+gold_img = pygame.image.load("assets/images/gold.png")
+gold_img = pygame.transform.scale(gold_img, (128, 128))
+
+trap_img = pygame.image.load("assets/images/trap.png")
+trap_img = pygame.transform.scale(trap_img, (128, 128))
+
+go_img = pygame.image.load("assets/images/go.png")
+yeah_img = pygame.image.load("assets/images/yeah.png")
+birdie_img = pygame.image.load("assets/images/birdie.png")
+eagle_img = pygame.image.load("assets/images/eagle.png")
+par_img = pygame.image.load("assets/images/par.png")
 
 # 텍스트 출력 함수
 def text_print(font_render, text):
@@ -87,7 +99,6 @@ def create_tile_large(space, pos):
     shape.elasticity = 1.1
     space.add(body,shape)
     return shape
-
 # 홀 생성 함수
 def create_hole(space, pos):
     body = pymunk.Body(1, 100, body_type = pymunk.Body.KINEMATIC)
@@ -134,7 +145,7 @@ def text_print(font_render, text):
 
 # 메인 게임 루프 함수
 def main_game_loop(screen, font, equipped_ball):
-    global space, size, vel_x, vel_y, shapes, balls, goals, hold, stroke, power, new_level, level, hole_max_timer, hole_timer
+    global space, size, vel_x, vel_y, shapes, tiles, goals, hold, stroke, power, new_level, level, hole_max_timer, hole_timer
 
     # 게임에 필요한 초기 설정
     space = pymunk.Space()
@@ -152,9 +163,9 @@ def main_game_loop(screen, font, equipped_ball):
     space.add(body, shape)
     shapes.append(shape)
 
-    balls = []
-    balls.append(create_tile_large(space, (640, 384)))
-    balls.append(create_tile_large(space, (320, 320)))
+    tiles = []
+    tiles.append(create_tile_large(space, (640, 384)))
+    tiles.append(create_tile_large(space, (320, 320)))
 
     goals = []
     goals.append(create_hole(space, (480, 480)))
@@ -173,38 +184,30 @@ def main_game_loop(screen, font, equipped_ball):
     hole_timer = 240
     size = 0
 
-    # EXIT 버튼 설정
-    exit_font = pygame.font.Font('assets/fonts/font.ttf', 50)
-    exit_text = exit_font.render("EXIT", True, (255, 255, 255))
-    exit_rect = exit_text.get_rect(topleft=(20, 20))
-
-    # go.png 이미지 로드 및 초기 설정
-    go_img = pygame.image.load("assets/images/go.png")
-    go_img_rect = go_img.get_rect(center=(480, 480))
     go_scale = 1.0  # 초기 스케일
     go_max_scale = 3.0  # 최대 스케일
     go_scale_speed = 0.07  # 스케일 변화 속도
     showing_go = True  # go 이미지 표시 여부
 
-    # 결과 이미지 로드
-    yeah_img = pygame.image.load("assets/images/yeah.png")
-    birdie_img = pygame.image.load("assets/images/birdie.png")
-    eagle_img = pygame.image.load("assets/images/eagle.png")
-    par_img = pygame.image.load("assets/images/par.png")
+    # EXIT 버튼 설정
+    exit_font = pygame.font.Font('assets/fonts/font.ttf', 50)
+    exit_text = exit_font.render("EXIT", True, (255, 255, 255))
+    exit_rect = exit_text.get_rect(topleft=(20, 20))
 
     # 게임 루프
     running = True
     while running:
         screen.blit(background, (0, 0))
 
-        # 타일과 홀 그리기
-        draw_tile_large(balls)
+        # 타일, 홀, 트랩, 골드 그리기
+        draw_tile_large(tiles)
         draw_hole(goals)
 
         # go 이미지 표시
         if showing_go:
             if go_scale < go_max_scale:
                 go_scale += go_scale_speed
+                go_img_rect = go_img.get_rect(center=(480, 480))
                 scaled_go_img = pygame.transform.scale(go_img, (
                 int(go_img_rect.width * go_scale), int(go_img_rect.height * go_scale)))
                 scaled_go_rect = scaled_go_img.get_rect(center=(480, 480))
@@ -212,7 +215,7 @@ def main_game_loop(screen, font, equipped_ball):
             else:
                 showing_go = False  # go 이미지 표시 종료
 
-        # 골프공이 홀에 들어갔을 때
+        # 골프공이 홀에 들어갔을 결과 표시
         if new_level:
             if stroke <= 3:
                 result_img = yeah_img
@@ -225,11 +228,6 @@ def main_game_loop(screen, font, equipped_ball):
 
             result_img_rect = result_img.get_rect(center=(480, 280))
             screen.blit(result_img, result_img_rect)
-
-            # 마우스 클릭으로 이미지 제거
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    new_level = False
 
         # EXIT 버튼 마우스 오버 효과
         if exit_rect.collidepoint(pygame.mouse.get_pos()):
@@ -272,24 +270,21 @@ def main_game_loop(screen, font, equipped_ball):
         fps = 2400
         space.step(1 / 2400)
 
-        # draw_tile_large(balls)
-        # draw_hole(goals)
-
         if new_level == False:
             pass
         else:
             if hole_timer >= hole_max_timer:
-                delete_static(balls)
-                balls = []
+                delete_static(tiles)
+                tiles = []
                 if level == 0:
-                    balls.append(create_tile_large(space, (10, 6)))
-                    balls.append(create_tile_large(space, (5, 5)))
+                    tiles.append(create_tile_large(space, (10, 6)))
+                    tiles.append(create_tile_large(space, (5, 5)))
                 elif level == 1:
-                    balls.append(create_tile_large(space, (8, 10)))
-                    balls.append(create_tile_large(space, (7, 5)))
+                    tiles.append(create_tile_large(space, (8, 10)))
+                    tiles.append(create_tile_large(space, (7, 5)))
                 elif level == 2:
-                    balls.append(create_tile_large(space, (12, 6)))
-                    balls.append(create_tile_large(space, (3, 6)))
+                    tiles.append(create_tile_large(space, (12, 6)))
+                    tiles.append(create_tile_large(space, (3, 6)))
                 stroke = 0
                 level += 1
                 new_level = False
@@ -344,9 +339,6 @@ def main_game_loop(screen, font, equipped_ball):
                             size = 0
                 hole_timer += 1
 
-        # draw_tile_large(balls)
-        # draw_hole(goals)
-
         if hold == True:
             ball_position = body.position
             mouse_position = pygame.mouse.get_pos()
@@ -396,7 +388,7 @@ while True:
         if game_state == "quit":
             break
     elif game_state == "open_shop":
-        equipped_ball, gold, shop_state = shop.show_shop_screen(screen, purchased_balls, equipped_ball, gold)
+        equipped_ball, gold, shop_state = shop.show_shop_screen(screen, purchased_tiles, equipped_ball, gold)
         if shop_state == "quit":
             break
         elif shop_state == "exit":
