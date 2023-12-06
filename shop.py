@@ -17,6 +17,11 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
     background = pygame.image.load("assets/images/background.png")
     background = pygame.transform.scale(background, (960, 960))
 
+    # 나가기 버튼 이미지 로드
+    exit_button_img = pygame.image.load("assets/images/next.png")
+    exit_button_img = pygame.transform.scale(exit_button_img, (200, 100))
+    exit_button_rect = exit_button_img.get_rect(topright=(910, 100))
+
     # 골프공 이미지 로드 및 크기 조정
     ball_images = [pygame.image.load(f"assets/images/ball{i}.png") for i in range(1, 7)]
     ball_images_scaled = [pygame.transform.scale(img, (100, 100)) for img in ball_images]
@@ -35,6 +40,15 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
     running = True
     while running:
         screen.blit(background, (0, 0))  # 배경화면 설정
+        mouse_pos = pygame.mouse.get_pos()
+
+        # 현재 남은 골드 표시
+        gold_text = f"Gold: {gold}"
+        gold_render = font.render(gold_text, True, (255, 255, 255))
+        screen.blit(gold_render, (800, 250))
+
+        # 나가기 버튼 그리기
+        screen.blit(exit_button_img, exit_button_rect)
 
         # 현재 장착 중인 골프공 그리기
         screen.blit(current_ball_scaled, ball_rects[0])
@@ -50,8 +64,10 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return equipped_ball
+                return equipped_ball, gold, "quit"
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if exit_button_rect.collidepoint(event.pos):
+                    return equipped_ball, gold, "exit"
                 for i, rect in enumerate(ball_rects[1:]):  # 첫 번째 골프공은 제외
                     if rect.collidepoint(event.pos):
                         ball_name = f"ball{i+1}.png"
@@ -62,4 +78,4 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
 
         pygame.display.update()
 
-    return equipped_ball, gold
+    return equipped_ball, gold, "continue"

@@ -4,7 +4,10 @@ from pygame import mixer
 import title
 import shop
 
+# Pygame 초기화 및 기본 설정
 pygame.init()
+screen = pygame.display.set_mode((960, 960))
+clock = pygame.time.Clock()
 
 font = pygame.font.Font('assets/fonts/font.ttf', 64)
 
@@ -122,208 +125,217 @@ def text_print(font_render, text):
     screen.blit(text_shadow_render, text_shadow_rect)
     screen.blit(text_render, text_rect)
 
-# 화면 설정
-screen = pygame.display.set_mode((960, 960))
-clock = pygame.time.Clock()
-
 # 사용자가 구매한 골프공 목록과 현재 장착된 골프공
+gold = 1000  # 초기 골드
 purchased_balls = ["ball.png"]  # 기본으로 구매된 골프공
 equipped_ball = "ball.png"  # 현재 장착된 골프공
 
-# 타이틀 화면 표시
-game_state = title.show_title_screen(screen)  # title.py의 함수 호출
+# 게임 상태
+game_state = "title"
 
-if game_state == "open_shop":
-    # 상점 화면 표시
-    equipped_ball = shop.show_shop_screen(screen, purchased_balls, equipped_ball)
-elif game_state == "quit":
-    pygame.quit()
-    sys.exit()
+# 메인 게임 루프 함수
+def main_game_loop(screen, font):
+    global space, size, vel_x, vel_y, shapes, balls, goals, hold, stroke, power, new_level, level, hole_max_timer, hole_timer
 
-space = pymunk.Space()
-space.gravity = (0, 0)
+    # 게임에 필요한 초기 설정
+    space = pymunk.Space()
+    space.gravity = (0, 0)
 
-ball_position = ()
+    ball_position = ()
 
-shapes = []
-body = pymunk.Body(5, 100, body_type = pymunk.Body.DYNAMIC)
-body.position = (480, 160)
-shape = pymunk.Circle(body, 24)
-shape.collision_type = 1
-shape.elasticity = 1
-shape.friction = 1.785
-space.add(body, shape)
-shapes.append(shape)
+    shapes = []
+    body = pymunk.Body(5, 100, body_type=pymunk.Body.DYNAMIC)
+    body.position = (480, 160)
+    shape = pymunk.Circle(body, 24)
+    shape.collision_type = 1
+    shape.elasticity = 1
+    shape.friction = 1.785
+    space.add(body, shape)
+    shapes.append(shape)
 
-balls = []
-balls.append(create_tile_large(space, (640, 384)))
-balls.append(create_tile_large(space, (320, 320)))
+    balls = []
+    balls.append(create_tile_large(space, (640, 384)))
+    balls.append(create_tile_large(space, (320, 320)))
 
-goals = []
-goals.append(create_hole(space, (480, 480)))
+    goals = []
+    goals.append(create_hole(space, (480, 480)))
 
-h = space.add_collision_handler(1, 1)
-h.begin = hit_object
+    h = space.add_collision_handler(1, 1)
+    h.begin = hit_object
 
-hold = False
+    hold = False
+    stroke = 0
+    power = 0
+    vel_x = 0
+    vel_y = 0
+    new_level = True
+    level = 0
+    hole_max_timer = 240
+    hole_timer = 240
+    size = 0
 
-stroke = 0
-
-power = 0
-
-vel_x = 0
-vel_y = 0
-
-new_level = True
-level = 0
-
-hole_max_timer = 240
-hole_timer = 240
-
-size = 0
-
-# 여기부터 게임 루프가 시작
-running = True
-while running:
-    screen.blit(background, (0, 0))
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+    # 게임 루프
+    running = True
+    while running:
+        screen.blit(background, (0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if (-0.00001 < vel_x < 0.12225 and -0.00001 < vel_y < 0.12225) or (0.00001 > vel_x > -0.12225 and 0.00001 > vel_y > -0.12225):
-                hold = True
-                power = 1
-        if event.type == pygame.MOUSEBUTTONUP:
-            if hold == True:
-                power = 0
-                stroke += 1
-                hold = False
-                vel_x = (mouse_position[0] - ball_position[0]) * 1.675773 / 100
-                vel_y = (mouse_position[1] - ball_position[1]) * 1.675773 / 100
-                power_sfx_play()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if (-0.00001 < vel_x < 0.12225 and -0.00001 < vel_y < 0.12225) or (
+                        0.00001 > vel_x > -0.12225 and 0.00001 > vel_y > -0.12225):
+                    hold = True
+                    power = 1
+            if event.type == pygame.MOUSEBUTTONUP:
+                if hold == True:
+                    power = 0
+                    stroke += 1
+                    hold = False
+                    vel_x = (mouse_position[0] - ball_position[0]) * 1.675773 / 100
+                    vel_y = (mouse_position[1] - ball_position[1]) * 1.675773 / 100
+                    power_sfx_play()
 
-    body.position = [body.position[0] - vel_x, body.position[1] - vel_y]
+        body.position = [body.position[0] - vel_x, body.position[1] - vel_y]
 
-    vel_x = vel_x * 98.87 / 100
-    vel_y = vel_y * 98.87 / 100
+        vel_x = vel_x * 98.87 / 100
+        vel_y = vel_y * 98.87 / 100
 
-    fps = 2400
-    space.step(1 / 2400)
+        fps = 2400
+        space.step(1 / 2400)
 
-    draw_tile_large(balls)
-    draw_hole(goals)
+        draw_tile_large(balls)
+        draw_hole(goals)
 
-    if new_level == False:
-        pass
-    else:
-        if hole_timer >= hole_max_timer:
-            delete_static(balls)
-            balls = []
-            if level == 0:
-                balls.append(create_tile_large(space, (10, 6)))
-                balls.append(create_tile_large(space, (5, 5)))
-            elif level == 1:
-                balls.append(create_tile_large(space, (8, 10)))
-                balls.append(create_tile_large(space, (7, 5)))
-            elif level == 2:
-                balls.append(create_tile_large(space, (12, 6)))
-                balls.append(create_tile_large(space, (3, 6)))
-            stroke = 0
-            level += 1
-            new_level = False
-            body.position = (480, 96)
-            vel_x, vel_y = 0, 0
-            hole_timer = 1
-            size = 0
-            win_pos = 0
+        if new_level == False:
+            pass
         else:
-            if hole_max_timer / hole_timer >= 3:
-                body.position = (480 + (hole_timer / 9) + random.randint(-3, 3), 480 + (hole_timer / 9) + random.randint(-3, 3))
-            elif 3 > hole_max_timer / hole_timer >= 2:
-                body.position = (480 + (hole_timer / 10) + random.randint(-2, 2), 480 + (hole_timer / 10) + random.randint(-2, 2))
-            elif 2 > hole_max_timer / hole_timer >= 1:
-                body.position = (480 + (hole_timer / 11) + random.randint(-1, 1), 480 + (hole_timer / 11) + random.randint(-1, 1))
-            if size <= 86:
-                size = hole_timer / hole_max_timer * 100
+            if hole_timer >= hole_max_timer:
+                delete_static(balls)
+                balls = []
+                if level == 0:
+                    balls.append(create_tile_large(space, (10, 6)))
+                    balls.append(create_tile_large(space, (5, 5)))
+                elif level == 1:
+                    balls.append(create_tile_large(space, (8, 10)))
+                    balls.append(create_tile_large(space, (7, 5)))
+                elif level == 2:
+                    balls.append(create_tile_large(space, (12, 6)))
+                    balls.append(create_tile_large(space, (3, 6)))
+                stroke = 0
+                level += 1
+                new_level = False
+                body.position = (480, 96)
+                vel_x, vel_y = 0, 0
+                hole_timer = 1
+                size = 0
+                win_pos = 0
             else:
-                size = 100
+                if hole_max_timer / hole_timer >= 3:
+                    body.position = (
+                    480 + (hole_timer / 9) + random.randint(-3, 3), 480 + (hole_timer / 9) + random.randint(-3, 3))
+                elif 3 > hole_max_timer / hole_timer >= 2:
+                    body.position = (
+                    480 + (hole_timer / 10) + random.randint(-2, 2), 480 + (hole_timer / 10) + random.randint(-2, 2))
+                elif 2 > hole_max_timer / hole_timer >= 1:
+                    body.position = (
+                    480 + (hole_timer / 11) + random.randint(-1, 1), 480 + (hole_timer / 11) + random.randint(-1, 1))
+                if size <= 86:
+                    size = hole_timer / hole_max_timer * 100
+                else:
+                    size = 100
 
-            if hole_timer > 80:
-                if abs(vel_x) + abs(vel_y) >= 4.5:
-                    if random.randint(1, 8) == 1:
-                        new_level = False
-                        body.position = (480, 480)
-                        vel_x, vel_y = random.randint(-4, 4), random.randint(-4, 4)
-                        hole_timer = 1
-                        size = 0
-                elif 4.5 > abs(vel_x) + abs(vel_y) >= 2:
-                    if random.randint(1, 15) == 1:
-                        new_level = False
-                        body.position = (480, 480)
-                        vel_x, vel_y = random.uniform(-4.85, 4.85), random.randint(-4, 4)
-                        hole_timer = 1
-                        size = 0
-                elif 2 > abs(vel_x) + abs(vel_y) >= 1.25:
-                    if random.randint(1, 30) == 1:
-                        new_level = False
-                        body.position = (480, 480)
-                        vel_x, vel_y = random.uniform(-4.85, 4.85), random.randint(-4, 4)
-                        hole_timer = 1
-                        size = 0
-                elif 1.25 > abs(vel_x) + abs(vel_y) >= 0.75:
-                    if random.randint(1, 60) == 1:
-                        new_level = False
-                        body.position = (480, 480)
-                        vel_x, vel_y = random.randint(-4, 4), random.randint(-4, 4)
-                        hole_timer = 1
-                        size = 0
-            hole_timer += 1
+                if hole_timer > 80:
+                    if abs(vel_x) + abs(vel_y) >= 4.5:
+                        if random.randint(1, 8) == 1:
+                            new_level = False
+                            body.position = (480, 480)
+                            vel_x, vel_y = random.randint(-4, 4), random.randint(-4, 4)
+                            hole_timer = 1
+                            size = 0
+                    elif 4.5 > abs(vel_x) + abs(vel_y) >= 2:
+                        if random.randint(1, 15) == 1:
+                            new_level = False
+                            body.position = (480, 480)
+                            vel_x, vel_y = random.uniform(-4.85, 4.85), random.randint(-4, 4)
+                            hole_timer = 1
+                            size = 0
+                    elif 2 > abs(vel_x) + abs(vel_y) >= 1.25:
+                        if random.randint(1, 30) == 1:
+                            new_level = False
+                            body.position = (480, 480)
+                            vel_x, vel_y = random.uniform(-4.85, 4.85), random.randint(-4, 4)
+                            hole_timer = 1
+                            size = 0
+                    elif 1.25 > abs(vel_x) + abs(vel_y) >= 0.75:
+                        if random.randint(1, 60) == 1:
+                            new_level = False
+                            body.position = (480, 480)
+                            vel_x, vel_y = random.randint(-4, 4), random.randint(-4, 4)
+                            hole_timer = 1
+                            size = 0
+                hole_timer += 1
 
-    draw_tile_large(balls)
-    draw_hole(goals)
+        draw_tile_large(balls)
+        draw_hole(goals)
 
-    if hold == True:
+        if hold == True:
+            ball_position = body.position
+            mouse_position = pygame.mouse.get_pos()
+
+            x_distance = ball_position[0] - mouse_position[0]
+            y_distance = ball_position[1] - mouse_position[1]
+
+            angle = math.degrees(math.atan2(y_distance, x_distance)) + 90
+
+            rotate_image = pygame.transform.rotate(arrow_img, -angle)
+            arrow_rect = rotate_image.get_rect(center=ball_position)
+            screen.blit(rotate_image, arrow_rect)
+
+        draw_player(shapes)
+        ui_rect = stroke_ui_img.get_rect(center=(480, 40))
+        screen.blit(stroke_ui_img, ui_rect)
+        text_print(font, f"Strokes: {str(stroke)}")
+
         ball_position = body.position
-        mouse_position = pygame.mouse.get_pos()
-        
-        x_distance = ball_position[0] - mouse_position[0]
-        y_distance = ball_position[1] - mouse_position[1]
 
-        angle = math.degrees(math.atan2(y_distance, x_distance)) + 90
-        
-        rotate_image = pygame.transform.rotate(arrow_img, -angle)
-        arrow_rect = rotate_image.get_rect(center = ball_position)
-        screen.blit(rotate_image, arrow_rect)
+        if ball_position[0] > 942:
+            body.position = [942, body.position[1]]
+            vel_x = -vel_x
+            hit()
+        elif ball_position[0] < 18:
+            body.position = [18, body.position[1]]
+            vel_x = -vel_x
+            hit()
+        elif ball_position[1] > 942:
+            body.position = [body.position[0], 942]
+            vel_y = -vel_y
+            hit()
+        elif ball_position[1] < 18:
+            body.position = [body.position[0], 18]
+            vel_y = -vel_y
+            hit()
 
-    draw_player(shapes)
-    ui_rect = stroke_ui_img.get_rect(center = (480, 40))
-    screen.blit(stroke_ui_img, ui_rect)
-    text_print(font, f"Strokes: {str(stroke)}")
+        pygame.display.update()
+        clock.tick(fps)
 
-    ball_position = body.position
+    return "title"
 
-    if ball_position[0] > 942:
-        body.position = [942, body.position[1]]
-        vel_x = -vel_x
-        hit()
-    elif ball_position[0] < 18:
-        body.position = [18, body.position[1]]
-        vel_x = -vel_x
-        hit()
-    elif ball_position[1] > 942:
-        body.position = [body.position[0], 942]
-        vel_y = -vel_y
-        hit()
-    elif ball_position[1] < 18:
-        body.position = [body.position[0], 18]
-        vel_y = -vel_y
-        hit()
-    
-    pygame.display.update()
-    clock.tick(fps)
+# 메인 루프
+while True:
+    if game_state == "title":
+        game_state = title.show_title_screen(screen)
+    elif game_state == "open_shop":
+        equipped_ball, gold, shop_state = shop.show_shop_screen(screen, purchased_balls, equipped_ball, gold)
+        if shop_state == "quit":
+            break
+        elif shop_state == "exit":
+            game_state = "title"
+    elif game_state == "start_game":
+        game_state = main_game_loop(screen, font)
+
 
 # 게임 종료 시 음악 정지
 pygame.mixer.music.stop()
