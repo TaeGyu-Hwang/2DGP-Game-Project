@@ -5,8 +5,9 @@ def show_title_screen(screen):
     font = pygame.font.Font('assets/fonts/font.ttf', 120)
     title_text = font.render("Go On Lucky Fairway", True, (255, 255, 255))
 
-    music_sfx = mixer.Sound('assets/sfx/music.mp3')
-    music_sfx.play(-1)
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.load('assets/sfx/music.mp3')
+        pygame.mixer.music.play(-1)  # 무한 반복 재생
 
     # 이미지 로드
     start_button_img = pygame.image.load("assets/images/start.png")

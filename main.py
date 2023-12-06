@@ -198,8 +198,13 @@ def main_game_loop(screen, font, equipped_ball):
 
         body.position = [body.position[0] - vel_x, body.position[1] - vel_y]
 
-        vel_x = vel_x * 98.87 / 100
-        vel_y = vel_y * 98.87 / 100
+        vel_x = vel_x * 96.66 / 100
+        vel_y = vel_y * 96.66 / 100
+
+        # 공이 거의 멈췄을 때 다음 샷 준비
+        if abs(vel_x) < 0.01 and abs(vel_y) < 0.01:
+            vel_x = 0
+            vel_y = 0
 
         fps = 2400
         space.step(1 / 2400)

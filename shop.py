@@ -63,7 +63,7 @@ def show_shop_screen(screen, purchased_balls, equipped_ball, gold):
         else:
             screen.blit(current_ball_scaled, ball_rects[0])
 
-        status_render = font.render("Currently Equipped", True, (255, 255, 255))
+        status_render = font.render("Equipped", True, (255, 255, 255))
         screen.blit(status_render, (ball_rects[0].x, ball_rects[0].y + 110))
 
         # 골프공 그리기 및 마우스 오버 효과
